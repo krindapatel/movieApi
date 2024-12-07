@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Search API</title>
+  <style>
+    body{
+      min-width: 100vw;
+      min-height: 100vh;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    h1{
+      text-align: center;
+      margin-top: 20px;
+    }
+    form{
+      text-align: center;
+      margin-top: 20px;
+    }
+    input[type="text"]{
+      padding: 10px;
+      width: 300px;
+      font-size: 16px;
+    }
+    button{
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #ff6600;
+      border: none;
+      color: white;
+    }
+    .Image-container{
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .image-card{
+      margin: 10px;
+      text-align: center;
+      max-width: 200px;
+    }
+    .image-card img{
+      width: 100%;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Movie Search API</h1>
+  <form>
+    <input type="text" class="Search-input" placeholder="Search for a TV show...">
+    <button class="Search">Search</button>
+  </form>
+  <div class="Image-container"></div>
+
+  <script>
+    const form = document.querySelector('form');
+    const container = document.querySelector('.Image-container');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const query = form.querySelector('input').value;
+      console.log(query);
+
+      if (query) {
+        tvmazeApi(query);
+      }
+    });
+
+    async function tvmazeApi(query) {
+      try {
+        const req = await fetch(`https://api.tvmaze.com/search/shows?q=${query}`);
+        const movies = await req.json();
+        makeImages(movies);
+      } catch (error) {
+        console.error("Error fetching data from API:", error);
+      }
+    }
+
+    function makeImages(movies) {
+      container.innerHTML = ""; // Clear previous results
+
+      if (movies.length === 0) {
+        container.innerHTML = "<p>No results found.</p>";
+        return;
+      }
+
+      for (let movie of movies) {
+        if (movie.show.image) {
+          const imageCard = document.createElement('div');
+          imageCard.classList.add('image-card');
+
+          const img = document.createElement('img');
+          img.src = movie.show.image.medium;
+          img.alt = movie.show.name;
+
+          const title = document.createElement('p');
+          title.textContent = movie.show.name;
+
+          imageCard.appendChild(img);
+          imageCard.appendChild(title);
+          container.appendChild(imageCard);
+        }
+      }
+    }
+  </script>
+
+</body>
+
+</html>
